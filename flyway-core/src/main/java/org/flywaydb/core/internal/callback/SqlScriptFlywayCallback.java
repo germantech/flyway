@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.callback;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.callback.FlywayCallback;
@@ -50,10 +51,11 @@ public class SqlScriptFlywayCallback implements FlywayCallback {
      * @param placeholderReplacer The placeholder replacer to apply to sql migration scripts.
      * @param encoding            The encoding of Sql migrations.
      * @param sqlMigrationSuffix  The suffix for sql migrations
+     * @param flyway 
      */
     public SqlScriptFlywayCallback(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
-                                   PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationSuffix) {
-        Scanner scanner = new Scanner(classLoader);
+                                   PlaceholderReplacer placeholderReplacer, String encoding, String sqlMigrationSuffix, Flyway flyway) {
+        Scanner scanner = new Scanner(classLoader, flyway);
 
         scripts.put("beforeClean", null);
         scripts.put("afterClean", null);

@@ -15,11 +15,14 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
@@ -34,13 +37,20 @@ import java.util.TreeSet;
  * </p>
  */
 public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
+	
+	final private Bundle hostBundle;
 
-    public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
+    public OsgiClassPathLocationScanner(Bundle hostBundle) {
+		super();
+		this.hostBundle = hostBundle;
+	}
+
+	public Set<String> findResourceNames(String location, URL locationUrl) throws IOException {
         Set<String> resourceNames = new TreeSet<String>();
 
-        Bundle bundle = FrameworkUtil.getBundle(getClass());
+//      Bundle bundle = FrameworkUtil.getBundle(getClass());
         @SuppressWarnings({"unchecked"})
-        Enumeration<URL> entries = bundle.findEntries(locationUrl.getPath(), "*", true);
+        Enumeration<URL> entries = hostBundle.findEntries(locationUrl.getPath(), "*", true);
 
         if (entries != null) {
             while (entries.hasMoreElements()) {
@@ -50,10 +60,18 @@ public class OsgiClassPathLocationScanner implements ClassPathLocationScanner {
                 resourceNames.add(resourceName);
             }
         }
+        
+    	// Try loading any classes at this location with bundle wiring
+    	BundleRevision bRevision = (BundleRevision) hostBundle.adapt(BundleRevision.class);
+    	BundleWiring wiring = bRevision.getWiring();
+    	Collection<String> classResources = wiring.listResources(locationUrl.getPath(), null, BundleWiring.LISTRESOURCES_RECURSE);
+    	// If any class resources were found, add them
+    	if(classResources != null)
+    		resourceNames.addAll(classResources);
 
         return resourceNames;
     }
-
+	
     private String getPathWithoutLeadingSlash(URL entry) {
         final String path = entry.getPath();
 

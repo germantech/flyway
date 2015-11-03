@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.spring;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
@@ -52,15 +53,23 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
      */
     private ClassLoader classLoader;
 
+	private Flyway flyway;
+
     /**
      * Creates a new instance.
      *
      * @param location    The base package on the classpath where to migrations are located.
      * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param flyway 
      */
-    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location) {
+    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location, Flyway flyway) {
         this.location = location;
         this.classLoader = classLoader;
+		this.flyway = flyway;
+    }
+    
+    public SpringJdbcMigrationResolver(ClassLoader classLoader, Location location) {
+    	this(classLoader, location, new Flyway());
     }
 
     public Collection<ResolvedMigration> resolveMigrations() {
@@ -71,7 +80,7 @@ public class SpringJdbcMigrationResolver implements MigrationResolver {
         }
 
         try {
-            Class<?>[] classes = new Scanner(classLoader).scanForClasses(location, SpringJdbcMigration.class);
+            Class<?>[] classes = new Scanner(classLoader, flyway).scanForClasses(location, SpringJdbcMigration.class);
             for (Class<?> clazz : classes) {
                 SpringJdbcMigration springJdbcMigration = ClassUtils.instantiate(clazz.getName(), classLoader);
 

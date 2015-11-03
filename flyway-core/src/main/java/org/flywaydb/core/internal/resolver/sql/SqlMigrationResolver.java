@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver.sql;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationType;
 import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.resolver.MigrationResolver;
@@ -90,18 +91,25 @@ public class SqlMigrationResolver implements MigrationResolver {
      * @param sqlMigrationPrefix    The prefix for sql migrations
      * @param sqlMigrationSeparator The separator for sql migrations
      * @param sqlMigrationSuffix    The suffix for sql migrations
+     * @param flyway 
      */
     public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Location location,
                                 PlaceholderReplacer placeholderReplacer, String encoding,
-                                String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix) {
+                                String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix, Flyway flyway) {
         this.dbSupport = dbSupport;
-        this.scanner = new Scanner(classLoader);
+        this.scanner = new Scanner(classLoader, flyway);
         this.location = location;
         this.placeholderReplacer = placeholderReplacer;
         this.encoding = encoding;
         this.sqlMigrationPrefix = sqlMigrationPrefix;
         this.sqlMigrationSeparator = sqlMigrationSeparator;
         this.sqlMigrationSuffix = sqlMigrationSuffix;
+    }
+    
+    public SqlMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Location location,
+    		PlaceholderReplacer placeholderReplacer, String encoding,
+    		String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix) {
+    	this(dbSupport, classLoader, location, placeholderReplacer, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, new Flyway());
     }
 
     public List<ResolvedMigration> resolveMigrations() {

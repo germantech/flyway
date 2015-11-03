@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.FeatureDetector;
 import org.flywaydb.core.internal.util.Location;
@@ -27,9 +28,11 @@ import org.flywaydb.core.internal.util.scanner.filesystem.FileSystemScanner;
  */
 public class Scanner {
     private final ClassLoader classLoader;
+	private Flyway flyway;
 
-    public Scanner(ClassLoader classLoader) {
+    public Scanner(ClassLoader classLoader, Flyway flyway) {
         this.classLoader = classLoader;
+		this.flyway = flyway;
     }
 
     /**
@@ -50,7 +53,7 @@ public class Scanner {
                 return new AndroidScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
             }
 
-            return new ClassPathScanner(classLoader).scanForResources(location.getPath(), prefix, suffix);
+            return new ClassPathScanner(classLoader, flyway).scanForResources(location.getPath(), prefix, suffix);
         } catch (Exception e) {
             throw new FlywayException("Unable to scan for SQL migrations in location: " + location, e);
         }
@@ -72,6 +75,6 @@ public class Scanner {
             return new AndroidScanner(classLoader).scanForClasses(location.getPath(), implementedInterface);
         }
 
-        return new ClassPathScanner(classLoader).scanForClasses(location.getPath(), implementedInterface);
+        return new ClassPathScanner(classLoader, flyway).scanForClasses(location.getPath(), implementedInterface);
     }
 }

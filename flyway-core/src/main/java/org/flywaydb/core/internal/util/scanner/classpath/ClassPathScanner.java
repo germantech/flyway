@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.util.scanner.classpath;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.internal.util.ClassUtils;
 import org.flywaydb.core.internal.util.FeatureDetector;
@@ -46,13 +47,21 @@ public class ClassPathScanner {
      */
     private final ClassLoader classLoader;
 
+	private Flyway flyway;
+
     /**
      * Creates a new Classpath scanner.
      *
      * @param classLoader The ClassLoader for loading migrations on the classpath.
+     * @param flyway 
      */
-    public ClassPathScanner(ClassLoader classLoader) {
+    public ClassPathScanner(ClassLoader classLoader, Flyway flyway) {
         this.classLoader = classLoader;
+		this.flyway = flyway;
+    }
+    
+    public ClassPathScanner(ClassLoader classLoader) {
+    	this(classLoader, new Flyway());
     }
 
     /**
@@ -240,7 +249,7 @@ public class ClassPathScanner {
                 "bundle".equals(protocol) // Felix
                         || "bundleresource".equals(protocol)) //Equinox
                 ) {
-            return new OsgiClassPathLocationScanner();
+            return new OsgiClassPathLocationScanner(flyway.getHostBundle());
         }
 
         return null;

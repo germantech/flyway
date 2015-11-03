@@ -15,6 +15,7 @@
  */
 package org.flywaydb.core.internal.resolver;
 
+import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.flywaydb.core.api.resolver.MigrationResolver;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
@@ -62,26 +63,34 @@ public class CompositeMigrationResolver implements MigrationResolver {
      * @param sqlMigrationSeparator    The file name separator for sql migrations.
      * @param sqlMigrationSuffix       The file name suffix for sql migrations.
      * @param placeholderReplacer      The placeholder replacer to use.
+     * @param flyway                   All the configuration data.
      * @param customMigrationResolvers Custom Migration Resolvers.
      */
     public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
                                       String encoding,
                                       String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
                                       PlaceholderReplacer placeholderReplacer,
-                                      MigrationResolver... customMigrationResolvers) {
+                                      Flyway flyway, MigrationResolver... customMigrationResolvers) {
         for (Location location : locations.getLocations()) {
             migrationResolvers.add(new SqlMigrationResolver(dbSupport, classLoader, location, placeholderReplacer,
-                    encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix));
-            migrationResolvers.add(new JdbcMigrationResolver(classLoader, location));
+                    encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, flyway));
+            migrationResolvers.add(new JdbcMigrationResolver(classLoader, location, flyway));
 
             if (new FeatureDetector(classLoader).isSpringJdbcAvailable()) {
-                migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location));
+                migrationResolvers.add(new SpringJdbcMigrationResolver(classLoader, location, flyway));
             }
         }
 
         migrationResolvers.addAll(Arrays.asList(customMigrationResolvers));
     }
 
+    public CompositeMigrationResolver(DbSupport dbSupport, ClassLoader classLoader, Locations locations,
+    		String encoding,
+    		String sqlMigrationPrefix, String sqlMigrationSeparator, String sqlMigrationSuffix,
+    		PlaceholderReplacer placeholderReplacer, 
+    		MigrationResolver... customMigrationResolvers) {
+    	this(dbSupport, classLoader, locations, encoding, sqlMigrationPrefix, sqlMigrationSeparator, sqlMigrationSuffix, placeholderReplacer, new Flyway(), customMigrationResolvers);
+    }
     /**
      * Finds all available migrations using all migration resolvers (sql, java, ...).
      *

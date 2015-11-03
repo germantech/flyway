@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.flywaydb</groupId>
     <artifactId>flyway-parent</artifactId>
-    <version>0-SNAPSHOT</version>
+    <version>3.2.1.8</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>
@@ -108,7 +108,7 @@
         <version.mariadb>1.1.7</version.mariadb>
         <version.postgresql>9.3-1102-jdbc4</version.postgresql>
         <version.sqlite>3.7.15-M1</version.sqlite>
-        <version.equinox>3.6.0.v20100517</version.equinox>
+        <version.equinox>3.7.1</version.equinox>
         <version.equinoxcommon>3.6.0.v20100503</version.equinoxcommon>
         <version.android>4.0.1.2</version.android>
         <version.slf4j>1.6.6</version.slf4j>
