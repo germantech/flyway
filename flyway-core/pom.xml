@@ -22,6 +22,7 @@
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-parent</artifactId>
         <version>${parent.version}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>flyway-core</artifactId>
     <packaging>jar</packaging>
